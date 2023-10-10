@@ -31,13 +31,13 @@ app.get("/personajes", async (req, res) => {
 });
 
 //Obtener un personaje el por su id
-app.get("/xm/:id", async (req, res) => {
+app.get("/personajes/:id", async (req, res) => {
   // Recuperar el id del personaje por params
   const id = req.params.id;
   // Hacer un try catch para manejar los errores
   try {
     // Hacer la consulta a la base de datos
-    const result = await pool.query("SELECT * FROM xm WHERE id_Xmendb = $1", [
+    const result = await pool.query("SELECT * FROM xm WHERE id_personaje = $1", [
       id,
     ]); // Verificar si la consulta no devolvio ningun resultado
     if (result.rows.length === 0) {
@@ -56,7 +56,7 @@ app.get("/xm/:id", async (req, res) => {
 });
 
 // Crear un nuevo personaje
-app.post("/xm", async (req, res) => {
+app.post("/personajes", async (req, res) => {
   // Extraer el titulo del body de la peticion
   const { imagen, nombre, apodo, genero, poder, rol, calificacion } = req.body;
 
@@ -79,28 +79,18 @@ app.post("/xm", async (req, res) => {
 });
 
 // Actualizar un personaje
-app.put("/xm/:id", async (req, res) => {
+app.put("/personajes/:id", async (req, res) => {
   // Recuperar el id del personaje por params
   const id = req.params.id;
   // Recuperar el estado del personaje por body
-  const { personaje } = req.body;
-  // Validar que el personaje sea un booleano
-  if (typeof personaje !== "boolean") {
-    return res.status(400).json({
-      message: "la solicitud es invalida. personaje debe ser un valor booleano",
-    });
-  }
+  const { imagen, nombre, apodo, genero, poder, rol, calificacion } = req.body;
   // Manejar errores con un try catch
   try {
     const result = await pool.query(
-      "UPDATE xm SET personaje = $1 WHERE id = $2 RETURNING *",
-      [personaje, id]
+      "UPDATE xm SET imagen = $1, nombre = $2, apodo = $3, genero = $4, poder = $5, rol = $6, calificacion = $7 WHERE id_personaje = $8 RETURNING *",
+      [imagen, nombre, apodo, genero, poder, rol, calificacion, id]
     );
-    res.json({
-      message: "personaje actualizado exitosamente",
-      body: result.rows[0],
-    });
-
+    //verificar si se actualizo algun recurso
     if (result.rows.length === 0) {
       return res.status(404).json({
         message: "no se encontro ningun personaje con el id proporcionado",
@@ -120,13 +110,13 @@ app.put("/xm/:id", async (req, res) => {
 });
 
 // Eliminar un personaje
-app.delete("/xm/:id", async (req, res) => {
+app.delete("/personajes/:id", async (req, res) => {
   // Recuperar el ID del personaje de los parámetros de la URL
   const id = req.params.id;
 
   try {
     // Realizar la eliminación en la base de datos
-    const result = await pool.query("DELETE FROM xm WHERE id_xm = $1", [id]);
+    const result = await pool.query("DELETE FROM xm WHERE id_personaje = $1", [id]);
 
     // Verificar si se eliminó algún recurso
     if (result.rowCount === 0) {
