@@ -37,9 +37,10 @@ app.get("/personajes/:id", async (req, res) => {
   // Hacer un try catch para manejar los errores
   try {
     // Hacer la consulta a la base de datos
-    const result = await pool.query("SELECT * FROM xm WHERE id_personaje = $1", [
-      id,
-    ]); // Verificar si la consulta no devolvio ningun resultado
+    const result = await pool.query(
+      "SELECT * FROM xm WHERE id_personaje = $1",
+      [id]
+    ); // Verificar si la consulta no devolvio ningun resultado
     if (result.rows.length === 0) {
       return res.status(404).json({
         message: "No se encontro el recurso",
@@ -63,12 +64,14 @@ app.post("/personajes", async (req, res) => {
   // Manejar el error con un try catch
   try {
     const result = await pool.query(
-      "INSERT INTO xm(imagen, nombre, apodo, genero, poder, rol, calificacion ) VALUES($1, $2, $3, $4, $5, $6, $7 )",
+      "INSERT INTO xm(imagen, nombre, apodo, genero, poder, rol, calificacion ) VALUES($1, $2, $3, $4, $5, $6, $7 ) RETURNING *",
       [imagen, nombre, apodo, genero, poder, rol, calificacion]
     );
+    const personajeNuevo = result.rows[0];
     // Devolver una respuesta exitosa
     res.status(201).json({
       message: "personaje creado exitosamente",
+      body: personajeNuevo,
     });
   } catch (error) {
     // Si hubo un error, devolver el error
@@ -116,7 +119,9 @@ app.delete("/personajes/:id", async (req, res) => {
 
   try {
     // Realizar la eliminación en la base de datos
-    const result = await pool.query("DELETE FROM xm WHERE id_personaje = $1", [id]);
+    const result = await pool.query("DELETE FROM xm WHERE id_personaje = $1", [
+      id,
+    ]);
 
     // Verificar si se eliminó algún recurso
     if (result.rowCount === 0) {
